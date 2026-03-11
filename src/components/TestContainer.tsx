@@ -31,7 +31,6 @@ export default function TestContainer({
 }) {
   const [currIndex, setCurrIndex] = useState(0);
 
-  const typingContainer = useRef<null | HTMLElement>(null);
   const charContainer = useRef<null | HTMLDivElement>(null);
 
   useEffect(() => {
@@ -119,24 +118,35 @@ export default function TestContainer({
     }
   }, [gameStarted]);
 
-  return (
-    <main
-      className="text-neutral-400 text-[2.2rem] pt-8 pb-8 relative focus:outline-none"
-      ref={typingContainer}
-      onKeyDown={(e) => {
-        if (!gameStarted) {
-          setGameStarted(true);
-          nextChar();
-        }
-        checkChar(e.key);
+  const hiddenInput = useRef<null | HTMLInputElement>(null);
 
-        if (e.key === " ") {
-          e.preventDefault();
-        }
-      }}
-      tabIndex={0}
-    >
-      <input type="text" className="absolute w-full h-full opacity-0" />
+  return (
+    <main className="text-neutral-400 text-[2.2rem] pt-8 pb-8 relative focus:outline-none">
+      <input
+        type="text"
+        className="absolute w-full h-full opacity-0 z-40"
+        ref={hiddenInput}
+        onInput={(e) => {
+          const native = e.nativeEvent as InputEvent;
+          const value = e.currentTarget.value;
+          const char = value[value.length - 1];
+
+          if (!gameStarted) {
+            setGameStarted(true);
+            nextChar();
+          }
+
+          if (native.inputType === "deleteContentBackward") {
+            checkChar("Backspace");
+            e.currentTarget.value = " ";
+            return;
+          }
+
+          checkChar(char);
+
+          e.currentTarget.value = " ";
+        }}
+      />
       <div
         className={`${!gameStarted ? "blur-[5px]" : ""} *:transition`}
         ref={charContainer}
@@ -155,7 +165,7 @@ export default function TestContainer({
           className="bg-blue-600 rounded-lg py-4 px-5 text-[1rem] text-white hover:bg-blue-400 hover:cursor-pointer transition focus:outline-2 outline-blue-400"
           onClick={() => {
             setGameStarted(true);
-            typingContainer.current!.focus();
+            hiddenInput.current!.focus();
           }}
         >
           Start Typing Test
