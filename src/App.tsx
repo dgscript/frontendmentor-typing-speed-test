@@ -40,6 +40,7 @@ function App() {
   const [currentTestIndexes, setCurrentTest] = useState<string[]>([]);
   const [wpm, setWpm] = useState(0);
   const [timer, setTimer] = useState(60);
+  const [passageTimer, setPassageTimer] = useState(0);
   const [wordsTyped, setWordsTyped] = useState(0);
   const [accuracy, setAccuracy] = useState(100);
   const [incorrectChars, setIncorrectChars] = useState(0);
@@ -100,11 +101,12 @@ function App() {
   }, [testComplete]);
 
   useEffect(() => {
-    const elapsedSeconds = 60 - timer;
+    const elapsedSeconds = mode === "timed" ? 60 - timer : passageTimer;
+
     if (elapsedSeconds > 0) {
       setWpm(Math.round(accurateChars / 5 / (elapsedSeconds / 60)));
     }
-  }, [wordsTyped]);
+  }, [wordsTyped, timer]);
 
   useEffect(() => {
     setTimer(mode === "timed" ? 60 : 0);
@@ -122,6 +124,7 @@ function App() {
     }
     setWordsTyped(0);
     setTimer(mode === "timed" ? 60 : 0);
+    setPassageTimer(0);
     setWpm(0);
     setAccuracy(100);
     setGameStarted(false);
@@ -140,6 +143,7 @@ function App() {
         if (mode === "timed") {
           setTimer((prev) => prev - 1);
         } else {
+          setPassageTimer((prev) => prev + 1);
           setTimer((prev) => prev + 1);
         }
       }, 1000);
