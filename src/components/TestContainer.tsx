@@ -121,10 +121,17 @@ export default function TestContainer({
   const hiddenInput = useRef<null | HTMLInputElement>(null);
 
   return (
-    <main className="text-neutral-400 text-[2.2rem] pt-8 pb-8 relative focus:outline-none">
+    <main
+      className="text-neutral-400 text-[2.2rem] pt-8 pb-8 relative focus:outline-none"
+      onClick={() => {
+        if (!gameStarted) {
+          setGameStarted(true);
+        }
+      }}
+    >
       <input
         type="text"
-        className="absolute w-full h-full opacity-0 z-40"
+        className="absolute w-full h-full opacity-0 z-10"
         ref={hiddenInput}
         onInput={(e) => {
           const native = e.nativeEvent as InputEvent;
